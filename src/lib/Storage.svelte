@@ -13,7 +13,7 @@
   export const chatsStorage = persisted('chats', [] as Chat[])
   export const latestModelMap = persisted('latestModelMap', {} as Record<Model, Model>) // What was returned when a model was requested
   export const globalStorage = persisted('global', {} as GlobalSettings)
-  export const apiKeyStorage = persisted('apiKey', '' as string)
+  export const apiKeyStorage = persisted('apiKey', import.meta.env.VITE_OPENAI_API_KEY as string)
   export let checkStateChange = writable(0) // Trigger for Chat
   export let showSetChatSettings = writable(false) //
   export let submitExitingPromptsNow = writable(false) // for them to go now.  Will not submit anything in the input
@@ -25,7 +25,7 @@
   export let lastChatId = persisted('lastChatId', 0)
 
   const chatDefaults = getChatDefaults()
-  
+
   export const getApiKey = (): string => {
     return get(apiKeyStorage)
   }
@@ -149,7 +149,7 @@
     }
     return profile
   }
-  
+
   // Reset all setting to current profile defaults
   export const resetChatSettings = (chatId, resetAll:boolean = false) => {
     const chats = get(chatsStorage)
@@ -401,7 +401,7 @@
 
     // Add a new chat
     chats.push(chatCopy)
-  
+
     // chatsStorage
     chatsStorage.set(chats)
   }
@@ -420,7 +420,7 @@
         return value
     }
   }
-  
+
   export const setChatSettingValueByKey = (chatId: number, key: keyof ChatSettings, value) => {
     const setting = getChatSettingObjectByKey(key)
     if (setting) return setChatSettingValue(chatId, setting, value)
@@ -456,7 +456,7 @@
     if (!setting.forceApi && value === chatDefaults[setting.key]) value = null
     return value
   }
-  
+
   export const setGlobalSettingValueByKey = (key: keyof GlobalSettings, value) => {
     return setGlobalSettingValue(getGlobalSettingObjectByKey(key), value)
   }
@@ -467,7 +467,7 @@
     globalStorage.set(store)
   }
 
-  
+
   export const getGlobalSettingValue = (key:keyof GlobalSetting, value):any => {
     const store = get(globalStorage)
     return store[key]
@@ -574,11 +574,11 @@
     return modelMapStore[model] || model
   }
 
-  
+
   export const setLatestKnownModel = (requestedModel:Model, responseModel:Model) => {
     const modelMapStore = get(latestModelMap)
     modelMapStore[requestedModel] = responseModel
     latestModelMap.set(modelMapStore)
   }
-  
+
 </script>
