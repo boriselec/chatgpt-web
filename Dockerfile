@@ -14,5 +14,7 @@ RUN npm run build
 
 # Start the application
 FROM nginx:stable-alpine
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /usr/share/nginx/html
+COPY --from=build /app/dist .
+CMD /bin/sh -c "for file in assets/index*.js; do sed -i 's/your_api_key/'\$OPENAPI_KEY'/g' \$file; done && exec nginx -g 'daemon off;'"
 EXPOSE 80
