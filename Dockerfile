@@ -16,5 +16,11 @@ RUN npm run build
 FROM nginx:stable-alpine
 WORKDIR /usr/share/nginx/html
 COPY --from=build /app/dist .
-CMD /bin/sh -c "for file in assets/index*.js; do sed -i 's/your_api_key/'\$OPENAPI_KEY'/g' \$file; done && exec nginx -g 'daemon off;'"
+CMD /bin/sh -c "\
+for file in assets/index*.js; do \
+  sed -i 's/your_api_key/'\"\$OPENAPI_KEY\"'/g' \$file; \
+  sed -i 's|https://api.openai.com|'\"\$API_BASE\"'|g' \$file; \
+done && \
+exec nginx -g 'daemon off;'\
+"
 EXPOSE 80
