@@ -6,17 +6,18 @@
   import { getPetalsBase, getPetalsWebsocket } from './ApiUtil.svelte'
   import { set as setOpenAI } from './providers/openai/util.svelte'
   import { hasActiveModels } from './Models.svelte'
+  import { get } from 'svelte/store'
 
-$: apiKey = $apiKeyStorage
+  $: apiKey = $apiKeyStorage
+  const openAiEndpoint = $globalStorage.openAiEndpoint || ''
+  let showPetalsSettings = $globalStorage.enablePetals
+  let pedalsEndpoint = $globalStorage.pedalsEndpoint
+  let hasModels = hasActiveModels()
+  let apiError: string = ''
 
-let showPetalsSettings = $globalStorage.enablePetals
-let pedalsEndpoint = $globalStorage.pedalsEndpoint
-let hasModels = hasActiveModels()
-
-onMount(() => {
+  onMount(() => {
     if (!$started) {
       $started = true
-      // console.log('started', apiKey, $lastChatId, getChat($lastChatId))
       if (hasActiveModels() && getChat($lastChatId)) {
         const chatId = $lastChatId
         $lastChatId = 0
@@ -24,21 +25,38 @@ onMount(() => {
       }
     }
     $lastChatId = 0
-})
+  })
 
-afterUpdate(() => {
+  afterUpdate(() => {
     hasModels = hasActiveModels()
     pedalsEndpoint = $globalStorage.pedalsEndpoint
     $checkStateChange++
-})
+  })
 
-const setPetalsEnabled = (event: Event) => {
+  const setPetalsEnabled = (event: Event) => {
     const el = (event.target as HTMLInputElement)
     setGlobalSettingValueByKey('enablePetals', !!el.checked)
     showPetalsSettings = $globalStorage.enablePetals
     hasModels = hasActiveModels()
-}
+  }
 
+  async function testApiEndpoint (baseUri: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${baseUri}/v1/models`, {
+        headers: { Authorization: `Bearer ${get(apiKeyStorage)}` }
+      })
+      if (!response.ok) {
+        apiError = `There was an error connecting to this endpoint: ${response.statusText}`
+        return false
+      }
+      apiError = ''
+      return true
+    } catch (error) {
+      console.error('Failed to connect:', error)
+      apiError = `There was an error connecting to this endpoint: ${error.message}`
+      return false
+    }
+  }
 </script>
 
 <section class="section">
