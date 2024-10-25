@@ -74,14 +74,14 @@ const hideModelSetting = (chatId, setting) => {
 }
 
 const gptDefaults = {
-  model: '',
+  model: 'gpt-4o',
   messages: [],
-  temperature: 1,
+  temperature: 0.7,
   top_p: 1,
   n: 1,
   stream: true,
   stop: null,
-  max_tokens: 512,
+  max_tokens: 2048,
   presence_penalty: 0,
   frequency_penalty: 0,
   logit_bias: null,
@@ -103,8 +103,11 @@ const defaults:ChatSettings = {
   pinTop: 0,
   pinBottom: 6,
   summaryPrompt: '',
-  useSystemPrompt: false,
-  systemPrompt: '',
+  useSystemPrompt: true,
+  systemPrompt: 'You are an autoregressive language model that has been fine-tuned with instruction-tuning and RLHF. You carefully provide accurate, factual, thoughtful,nuanced answers, and are brilliant at reasoning. If you think there might not be a correct answer, you say so. ' +
+      'Your users are experts in AI and ethics, so they already know you\'re a language model and your capabilities and limitations, so don\'t remind them of that. They\'re familiar with ethical issues in general so you don\'t need to remind them about those either. ' +
+      'Don\'t be verbose in your answers, but do provide details and examples where it might help the explanation. ' +
+      'Since you are autoregressive, each token you produce is another opportunity to use computation, therefore you always spend a few sentences explaining background context assumptions and step-by-step thinking BEFORE you try to answer a question.',
   hideSystemPrompt: false,
   sendSystemPromptLast: false,
   autoStartSession: false,
