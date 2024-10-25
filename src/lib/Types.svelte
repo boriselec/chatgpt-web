@@ -64,7 +64,7 @@ export type ChatSettings = {
     characterName: string,
     profileName: string,
     profileDescription: string,
-    continuousChat: (''|'fifo'|'summary');
+    continuousChat: (''|'no-context'|'fifo'|'summary');
     summaryThreshold: number;
     summarySize: number;
     summaryExtend: number;

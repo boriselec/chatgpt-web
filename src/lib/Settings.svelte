@@ -293,6 +293,7 @@ const summarySettings: ChatSetting[] = [
         type: 'select',
         options: [
           { value: '', text: 'OFF - Chat errors when token buffer full' },
+          { value: 'no-context', text: 'Do not send anything other than system prompt and just typed message' },
           { value: 'fifo', text: 'FIFO - First message in is first out' },
           { value: 'summary', text: 'Summary - Summarize past messages' }
         ],
