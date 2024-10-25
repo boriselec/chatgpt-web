@@ -110,8 +110,17 @@ export class ChatRequest {
         const messageFilter = (m:Message) => !m.suppress &&
           includedRoles.includes(m.role) &&
           m.content && !m.summarized
-        const filtered = messages.filter(messageFilter)
-    
+        let filtered: Message[];
+        if (chatSettings.continuousChat === "no-context") {
+            filtered = [];
+            if (messages[0]?.role == 'system') {
+                filtered.push(messages[0])
+            }
+            filtered.push(messages[messages.length - 1])
+        } else {
+            filtered = messages.filter(messageFilter);
+        }
+
         // If we're doing continuous chat, do it
         if (!opts.didSummary && !opts.summaryRequest && chatSettings.continuousChat) return await this.doContinuousChat(filtered, opts, overrides)
 
