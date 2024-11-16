@@ -110,16 +110,7 @@ export class ChatRequest {
         const messageFilter = (m:Message) => !m.suppress &&
           includedRoles.includes(m.role) &&
           m.content && !m.summarized
-        let filtered: Message[];
-        if (chatSettings.continuousChat === "no-context") {
-            filtered = [];
-            if (messages[0]?.role == 'system') {
-                filtered.push(messages[0])
-            }
-            filtered.push(messages[messages.length - 1])
-        } else {
-            filtered = messages.filter(messageFilter);
-        }
+        const filtered = messages.filter(messageFilter)
 
         // If we're doing continuous chat, do it
         if (!opts.didSummary && !opts.summaryRequest && chatSettings.continuousChat) return await this.doContinuousChat(filtered, opts, overrides)
@@ -238,6 +229,22 @@ export class ChatRequest {
         }
 
         return chatResponse
+      }
+
+      checkAndExtractNumber(input: string): number {
+        // Regular expression to extract "/last" followed by a space and a number
+        const regex = /^\/last\s+(\d+)/;
+        const match = input.match(regex);
+        if (match) {
+          return parseInt(match[1], 10);
+        }
+        return 0;
+      }
+      removeLastN(text: string): string {
+        // Regular expression to match "last n" at the beginning of the string
+        const regex = /^\/last \d+\s*/;
+        // Replace the matched pattern with an empty string
+        return text.replace(regex, '');
       }
 
       async getModel (): Promise<Model> {
@@ -364,6 +371,27 @@ export class ChatRequest {
             // Hide messages we're "rolling"
             if (rolled) rolled.suppress = true
             promptSize = countPromptTokens(top.concat(rw), model, chat) + countPadding
+          }
+          // Run a new request, now with the rolled messages hidden
+          return await _this.sendRequest(get(currentChatMessages), {
+            ...opts,
+            didSummary: true // our "summary" was simply dropping some messages
+          }, overrides)
+        } else if (reductionMode === 'manual-context') {
+          let justTyped = rw[rw.length - 1].content;
+          // parse content to find out how many last messages to preserve
+          let nContext = this.checkAndExtractNumber(justTyped)
+          // twice many because of request-response
+          * 2
+          // plus one because should always include just typed message
+          + 1;
+          // modify just typed message to remove '/last n'
+          rw[rw.length - 1].content = this.removeLastN(justTyped)
+          while (rw.length && rw.length > nContext) {
+            const rolled = rw.shift()
+            // Hide messages we're "rolling" (except system prompt)
+            if (rolled?.role === 'system') continue
+            if (rolled) rolled.suppress = true
           }
           // Run a new request, now with the rolled messages hidden
           return await _this.sendRequest(get(currentChatMessages), {
