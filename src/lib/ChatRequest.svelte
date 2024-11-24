@@ -16,7 +16,7 @@ export class ChatRequest {
         this.updating = false
         this.updatingMessage = ''
       }
-    
+
       private chat: Chat
       updating: boolean|number = false
       updatingMessage: string = ''
@@ -52,7 +52,7 @@ export class ChatRequest {
         }
         throw new Error(`${response.status} - ${errorResponse}`)
       }
-    
+
       /**
        * Send API request
        * @param messages
@@ -94,7 +94,7 @@ export class ChatRequest {
               prompt: im[9],
               count: n
             })
-    
+
             // (lastMessage, im[9], n, messages, opts, overrides)
             // throw new Error('Image prompt:' + im[7])
           }
@@ -105,7 +105,7 @@ export class ChatRequest {
         const maxTokens = getModelMaxTokens(model)
 
         const includedRoles = ['user', 'assistant'].concat(chatSettings.useSystemPrompt ? ['system'] : [])
-    
+
         // Submit only the role and content of the messages, provide the previous messages as well for context
         const messageFilter = (m:Message) => !m.suppress &&
           includedRoles.includes(m.role) &&
@@ -364,7 +364,7 @@ export class ChatRequest {
            * FIFO mode.  Roll the top off until we're under our threshold.
            * *************************************************************
            */
-    
+
           let promptSize = countPromptTokens(top.concat(rw), model, chat) + countPadding
           while (rw.length && rw.length > pinBottom && promptSize >= threshold) {
             const rolled = rw.shift()
@@ -379,19 +379,24 @@ export class ChatRequest {
           }, overrides)
         } else if (reductionMode === 'manual-context') {
           let justTyped = rw[rw.length - 1].content;
-          // parse content to find out how many last messages to preserve
-          let nContext = this.checkAndExtractNumber(justTyped)
-          // twice many because of request-response
-          * 2
-          // plus one because should always include just typed message
-          + 1;
-          // modify just typed message to remove '/last n'
-          rw[rw.length - 1].content = this.removeLastN(justTyped)
-          while (rw.length && rw.length > nContext) {
-            const rolled = rw.shift()
-            // Hide messages we're "rolling" (except system prompt)
-            if (rolled?.role === 'system') continue
-            if (rolled) rolled.suppress = true
+          // continue command.
+          if (justTyped.startsWith('/c ')) {
+              rw[rw.length - 1].content = justTyped.replace('/c ', '')
+          } else {
+              // parse content to find out how many last messages to preserve
+              let nContext = this.checkAndExtractNumber(justTyped)
+                  // twice many because of request-response
+                  * 2
+                  // plus one because should always include just typed message
+                  + 1;
+              // modify just typed message to remove '/last n'
+              rw[rw.length - 1].content = this.removeLastN(justTyped)
+              while (rw.length && rw.length > nContext) {
+                  const rolled = rw.shift()
+                  // Hide messages we're "rolling" (except system prompt)
+                  if (rolled?.role === 'system') continue
+                  if (rolled) rolled.suppress = true
+              }
           }
           // Run a new request, now with the rolled messages hidden
           return await _this.sendRequest(get(currentChatMessages), {
@@ -403,7 +408,7 @@ export class ChatRequest {
            * Summary mode. Reduce it all to a summary, if we can.
            * ****************************************************
            */
-    
+
           const bottom = rw.slice(0 - pinBottom)
           let continueCounter = chatSettings.summaryExtend + 1
           rw = rw.slice(0, 0 - pinBottom)
