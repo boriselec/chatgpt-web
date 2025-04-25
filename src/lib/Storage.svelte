@@ -27,7 +27,7 @@
   export let lastChatId = persisted('lastChatId', 0)
 
   const chatDefaults = getChatDefaults()
-
+  
   export const getApiKey = (): string => {
     return get(apiKeyStorage)
   }
@@ -162,7 +162,7 @@
     }
     return profile
   }
-
+  
   // Reset all setting to current profile defaults
   export const resetChatSettings = async (chatId, resetAll:boolean = false) => {
     const chats = get(chatsStorage)
@@ -414,7 +414,7 @@
 
     // Add a new chat
     chats.push(chatCopy)
-
+  
     // chatsStorage
     chatsStorage.set(chats)
   }
@@ -433,7 +433,7 @@
         return value
     }
   }
-
+  
   export const setChatSettingValueByKey = (chatId: number, key: keyof ChatSettings, value) => {
     const setting = getChatSettingObjectByKey(key)
     if (setting) return setChatSettingValue(chatId, setting, value)
@@ -469,7 +469,7 @@
     if (!setting.forceApi && value === chatDefaults[setting.key]) value = null
     return value
   }
-
+  
   export const setGlobalSettingValueByKey = (key: keyof GlobalSettings, value) => {
     return setGlobalSettingValue(getGlobalSettingObjectByKey(key), value)
   }
@@ -480,7 +480,7 @@
     globalStorage.set(store)
   }
 
-
+  
   export const getGlobalSettingValue = (key:keyof GlobalSetting, value):any => {
     const store = get(globalStorage)
     return store[key]
@@ -587,11 +587,11 @@
     return modelMapStore[model] || model
   }
 
-
+  
   export const setLatestKnownModel = (requestedModel:Model, responseModel:Model) => {
     const modelMapStore = get(latestModelMap)
     modelMapStore[requestedModel] = responseModel
     latestModelMap.set(modelMapStore)
   }
-
+  
 </script>
