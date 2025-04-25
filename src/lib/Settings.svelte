@@ -293,7 +293,7 @@ const summarySettings: ChatSetting[] = [
         type: 'select',
         options: [
           { value: '', text: 'OFF - Chat errors when token buffer full' },
-          { value: 'manual-context', text: 'type "/last n" to include last n messages (request-response) in context' },
+          { value: 'manual-context', text: 'type "/c" to include previous messages, otherwise context will be trimmed' },
           { value: 'fifo', text: 'FIFO - First message in is first out' },
           { value: 'summary', text: 'Summary - Summarize past messages' }
         ],

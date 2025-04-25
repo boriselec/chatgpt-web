@@ -231,22 +231,6 @@ export class ChatRequest {
         return chatResponse
       }
 
-      checkAndExtractNumber(input: string): number {
-        // Regular expression to extract "/last" followed by a space and a number
-        const regex = /^\/last\s+(\d+)/;
-        const match = input.match(regex);
-        if (match) {
-          return parseInt(match[1], 10);
-        }
-        return 0;
-      }
-      removeLastN(text: string): string {
-        // Regular expression to match "last n" at the beginning of the string
-        const regex = /^\/last \d+\s*/;
-        // Replace the matched pattern with an empty string
-        return text.replace(regex, '');
-      }
-
       async getModel (): Promise<Model> {
         return this.chat.settings.model || await getDefaultModel()
       }
@@ -384,14 +368,7 @@ export class ChatRequest {
               rw[rw.length - 1].content = justTyped.replace('/c ', '')
           } else {
               // parse content to find out how many last messages to preserve
-              let nContext = this.checkAndExtractNumber(justTyped)
-                  // twice many because of request-response
-                  * 2
-                  // plus one because should always include just typed message
-                  + 1;
-              // modify just typed message to remove '/last n'
-              rw[rw.length - 1].content = this.removeLastN(justTyped)
-              while (rw.length && rw.length > nContext) {
+              while (rw.length && rw.length > 1) {
                   const rolled = rw.shift()
                   // Hide messages we're "rolling" (except system prompt)
                   if (rolled?.role === 'system') continue
