@@ -364,8 +364,8 @@ export class ChatRequest {
         } else if (reductionMode === 'manual-context') {
           let justTyped = rw[rw.length - 1].content;
           // continue command.
-          if (justTyped.startsWith('/c ')) {
-              rw[rw.length - 1].content = justTyped.replace('/c ', '')
+          if (justTyped.startsWith('/c ') || justTyped.startsWith('/с ')) {
+              rw[rw.length - 1].content = justTyped.replace('/c ', '').replace('/с ', '')
           } else {
               // parse content to find out how many last messages to preserve
               while (rw.length && rw.length > 1) {
