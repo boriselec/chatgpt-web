@@ -18,9 +18,9 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - URL={LETSENCRYPT_URL}
+      - URL=${LETSENCRYPT_URL}
       - VALIDATION=http
-      - EMAIL={LETSENCRYPT_EMAIL}
+      - EMAIL=${LETSENCRYPT_EMAIL}
     volumes:
       - ./swag/config:/config
     ports:
