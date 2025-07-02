@@ -11,15 +11,18 @@ services:
     environment:
       - OPENAPI_KEY=${OPENAPI_KEY}
       - API_BASE=https://api.openai.com
-  auth:
-    image: beevelop/nginx-basic-auth
-    container_name: auth
-    ports:
-      - '80:80'
+  swag:
+    image: lscr.io/linuxserver/swag:latest
+    container_name: swag
     environment:
-      - PORT=80
-      - FORWARD_HOST=gpt
-      - FORWARD_PORT=80
-      ## escape $ with $$ in Docker yml due to variable expansion
-      ## example user/pass generated with htpasswd is foo:bar
-      - HTPASSWD=${HTPASSWD}
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - URL={LETSENCRYPT_URL}
+      - VALIDATION=http
+      - EMAIL={LETSENCRYPT_EMAIL}
+    volumes:
+      - ./swag/config:/config
+    ports:
+      - "443:443"
+      - "80:80"  # Required for HTTP validation
