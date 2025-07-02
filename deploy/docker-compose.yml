@@ -10,22 +10,7 @@ services:
         max-file: "20"
     environment:
       - OPENAPI_KEY=${OPENAPI_KEY}
-      - API_BASE=http://${PROXY_URL}:${PROXY_PORT}/api
-  proxy:
-    image: nginx:alpine
-    container_name: proxy
-    logging:
-      driver: local
-      options:
-        max-file: "20"
-    depends_on:
-      - "gpt"
-    ports:
-      - '${PROXY_PORT}:${PROXY_PORT}'
-    environment:
-      - PROXY_PORT=${PROXY_PORT}
-    volumes:
-      - ./site-confs:/etc/nginx/conf.d:ro
+      - API_BASE=https://api.openai.com
   auth:
     image: beevelop/nginx-basic-auth
     container_name: auth
