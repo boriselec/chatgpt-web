@@ -10,22 +10,7 @@ services:
         max-file: "20"
     environment:
       - OPENAPI_KEY=${OPENAPI_KEY}
-      - API_BASE=http://${PROXY_URL}:${PROXY_PORT}/api
-  proxy:
-    image: nginx:alpine
-    container_name: proxy
-    logging:
-      driver: local
-      options:
-        max-file: "20"
-    depends_on:
-      - "gpt"
-    ports:
-      - '${PROXY_PORT}:${PROXY_PORT}'
-    environment:
-      - PROXY_PORT=${PROXY_PORT}
-    volumes:
-      - ./site-confs:/etc/nginx/conf.d:ro
+      - API_BASE=https://${URL}/openai-api-proxy
   swag:
     image: lscr.io/linuxserver/swag:latest
     container_name: swag
@@ -33,7 +18,7 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Etc/UTC
-      - URL=${LETSENCRYPT_URL}
+      - URL=${URL}
       - VALIDATION=http
       - EMAIL=${LETSENCRYPT_EMAIL}
     volumes:
